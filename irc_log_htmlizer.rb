@@ -28,7 +28,7 @@ class State
   end
 
   def save!(file)
-    File.open(file, 'wb') do |f|
+    write_via_tempfile(file, 'wb') do |f|
       @files_and_mtimes.each_pair do |filename, mtime|
         f.puts "#{mtime} #{filename}"
       end
@@ -93,9 +93,19 @@ def h(text)
   CGI::escapeHTML(text)
 end
 
+def write_via_tempfile(path, mode, &block)
+  temp_path = path + ".tmp" + (rand * 1000000000).to_i.to_s
+  begin
+    File.open(temp_path, mode, &block)
+    File.rename(temp_path, path)
+  ensure
+    File.unlink(temp_path) if File.exist?(temp_path)
+  end
+end
+
 def transform_file(srcfile, destfile, src_encoding)
   File.open(srcfile, "rb:" + src_encoding) do |sf|
-    File.open(destfile, "wb:UTF-8") do |df|
+    write_via_tempfile(destfile, "wb:UTF-8") do |df|
       df.puts header(File.basename(srcfile))
       sf.each_line do |line|
         if line =~ /^\[(\d+):(\d+):(\d+)\](.*)$/
@@ -113,7 +123,7 @@ end
 
 def write_index(index_file, files)
   files = files.reverse
-  File.open(index_file, "wb:UTF-8") do |f|
+  write_via_tempfile(index_file, "wb:UTF-8") do |f|
     f.puts index_header
     files.each do |log_file_path|
       log_file_name = File.basename(log_file_path)
