@@ -49,7 +49,7 @@ def header(log_file_name)
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="iso-8859-15" />
+  <meta charset="utf-8" />
   <title>#{h(log_file_name)}</title>
   <style>
     body { font-family: monospace; }
@@ -108,6 +108,7 @@ def transform_file(srcfile, destfile, src_encoding)
     write_via_tempfile(destfile, "wb:UTF-8") do |df|
       df.puts header(File.basename(srcfile))
       sf.each_line do |line|
+        line = line.encode('UTF-8')
         if line =~ /^\[(\d+):(\d+):(\d+)\](.*)$/
           time = "#{$1}:#{$2}"
           text = $4
