@@ -1,6 +1,6 @@
 # Usage example:
 # clear_firewall
-# init_forwarding
+# init_forwarding 192.168.122.0/24
 # forward_port 123 foo 456    # source-port  dest-host  dest-port
 
 gethost() {
@@ -23,7 +23,9 @@ clear_firewall() {
   echo 0 > /proc/sys/net/ipv4/ip_forward
 }
 
+# Takes subnet as parameter
 init_forwarding() {
+  SUBNET="$1"
   echo 1 > /proc/sys/net/ipv4/ip_forward
-  iptables -t nat -A POSTROUTING -j MASQUERADE
+  iptables -t nat -A POSTROUTING -s $SUBNET -j MASQUERADE
 }
