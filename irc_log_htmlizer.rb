@@ -140,8 +140,7 @@ EOS
 end
 
 def h(text)
-  CGI::escapeHTML(text)
-  auto_link_urls(text)
+  auto_link_urls(CGI::escapeHTML(text))
 end
 
 def write_via_tempfile(path, mode, &block)
